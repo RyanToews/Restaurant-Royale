@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+  <link rel="stylesheet" href="./styles/lobby.css">
+  <!-- <link rel="stylesheet" href="./styles/my_style.css" /> -->
+  <link rel="stylesheet" href="./styles/bootstrapColourReplace.css">
+
+  <!-- Firebase 8 CDNs-->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/ui/4.8.1/firebase-ui-auth.js"></script>
+
+  <!-- Link to the api keys for your firebase project -->
+  <script src="./scripts/firebaseAPI.js"></script>
+
+  <title>COMP 1800 WebApp</title>
+</head>
+
+<body>
+  <header id="topnav">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-danger">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="./main.html">
+          <img src="./images/logo.png" alt="" width="30" height="24" class="d-inline-block align-text-top">
+          Restaurant Royale
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
+          aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+          <div class="navbar-nav">
+            <a class="nav-link active" aria-current="page" href="./main.html">Home</a>
+            <a class="nav-link active" href="./favourites.html">Favourites</a>
+            <a class="nav-link active" href="./friends.html">Friends</a>
+            <a class="nav-link active" id="loginStat" href="./login.html">Login</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <div id="code">
+    <h1>Lobby Code: <span id="codeNumber"></span></h1>
+  </div>
+
+  <div id="timerDiv">
+    <h2>Timer: <span id="timer"></span> </h2>
+  </div>
+
+  <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+    <button type="button" class="btn btn-danger" id="listOf" onclick="listRest(); hideList()">Add Restaurant</button>
+    <button type="button" class="btn btn-danger" id="start" onclick="startGame(); increment();">Start
+      Game</button>
+    <button type="button" id="vote" class="btn btn-danger" disabled>Ready to Vote</button>
+    <a id="quitBtn" href="main.html" class="btn btn-danger card-href card-quit">Quit the Game</a>
+  </div>
+
+
+
+  <!-- <button type="button" id="startButton" class="btn btn-danger" onclick="startVote()">Start
+    Vote</button> -->
+
+  <!-- card layout for list -->
+
+  <!-- Templates for general use, not displayed -->
+  <template id="CardTemplate">
+    <div class="card" style="width: 100%;">
+      <img class="card-image" src="..." alt="..." width="50%" height="50%">
+      <div class="card-body">
+        <h5 class="card-title">Card title</h5>
+        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
+          card's content.</p>
+        <a id="addBtn" class="btn btn-danger card-href card-add">Add</a>
+      </div>
+    </div>
+  </template>
+
+  <template id="CardTemplate2">
+    <div class="card py-2 mx-2">
+      <img class="card-image card-img-top" src="..." alt="...">
+      <div class="card-body">
+        <h5 class="card-title">Card title</h5>
+        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
+          card's content.</p>
+        <a id="voteBtn" class="btn btn-danger card-href card-vote">Vote</a>
+      </div>
+    </div>
+  </template>
+
+  <template id="CardTemplate3">
+    <div class="card py-2 mx-2">
+      <img class="card-image card-img-top" src="..." alt="...">
+      <div class="card-body">
+        <div>
+          <h3>Winner!</h3>
+        </div>
+        <h5 class="card-title">Card title</h5>
+        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
+          card's content.</p>
+
+      </div>
+    </div>
+  </template>
+
+  <div id="restList" class="container">
+    <!-- Here is container for cards  -->
+    <div class="container">
+      <div id="restaurants-go-here" class="row row-cols-auto">
+
+      </div>
+    </div>
+  </div>
+
+  <div id="voteList" class="container">
+    <!-- Here is container for cards  -->
+    <div class="container">
+      <div id="games-go-here" class="row row-cols-auto">
+
+      </div>
+    </div>
+  </div>
+
+  <div id="winner" class="container">
+    <!-- Here is container for cards  -->
+    <div class="container">
+      <div id="winners-go-here" class="row row-cols-auto">
+
+      </div>
+    </div>
+  </div>
+  <!-- Optional JavaScript; choose one of the two! -->
+
+  <!-- Option 1: Bootstrap Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+    crossorigin="anonymous"></script>
+
+  <script src="./scripts/lobbyScripts.js"></script>
+
+
+  <!-- Option 2: Separate Popper and Bootstrap JS -->
+  <!--
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>
+    -->
+</body>
+
+</html>
